@@ -13,8 +13,17 @@
         <input type="submit" value="Upload">
     </form>
     {% if plot %}
-    {{ plot | safe }}
+    <!-- {{ plot | safe }} -->
+    <div id="graph1">
+        {{ plot | safe }}
+    </div>
     <h1>patent figure</h1>
+    <div id="graph2">
+        {{ plot2 | safe }}
+    </div>
+    <div id="graph3">
+        {{ plot3 | safe }}
+    </div>
     {%
     endif %}
 </body>
