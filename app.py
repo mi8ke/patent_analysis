@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for
 import pandas as pd
 import os
-from PIL import Image
+import plotly.express as px
+import plotly.graph_objects as go
 
 # app = Flask(__name__, static_folder='uploads')
 app = Flask(__name__)
@@ -13,53 +14,74 @@ def home():
     return render_template('index.html')
 
 
-@app.route('/upload', methods=['GET', 'POST'])
+@app.route('/upload', methods=['POST'])
 def upload_csv():
 
-    # if 'file' not in request.files:
-    #     return 'No file part'
-    # file = request.files['file']
-    # print(file)  # <FileStorage: '特実_国内文献.csv' ('text/csv')>
     file = request.files.get('file')
-    print(file)
-    # print(file.filename.endswith('.csv'))
-    return render_template('index2.html')
-
     if file and file.filename.endswith('.csv'):
-        # CSVファイルを適切なディレクトリに保存する処理
-        # file.save(os.path.join('files', file.filename))
+        print('CSVファイルが正常にアップロードされました。')
+
         file_path = os.path.join('uploads', file.filename)
-        file.save(file_path)
-        return render_template('index.html')
-        # return render_template('index2.html', file_path=file_path)
-        # return render_template('index2.html')
-        # return redirect(url_for('index'))
+        # ファイル保存
+        # file.save(file_path)
+
+        df = pd.read_csv(file_path)
+
+        # 出願年を抽出
+        df["出願年"] = pd.to_datetime(df["出願日"]).dt.year
+
+        # 年ごとの出願件数集計
+        df_grouped = df.groupby("出願年")["文献番号"].count().reset_index()
+        df_grouped.columns = ["出願年", "出願件数"]
+
+        # 発明者/権利者ごとの一年ごとの出願件数を集計　ピボットテーブルにする
+        inventor_counts = df.groupby(
+            ["出願人/権利者", "出願年"])["文献番号"].count().unstack().fillna(0)  # NaN値を0で置き換える
+        inventor_counts = inventor_counts.astype(int)
+
+        # 出願者ごとの出願数
+        inventor_application_counts = inventor_counts.sum(axis=1)
+        # 出願年ごとの出願数
+        annual_applications = inventor_counts.sum(axis=0)
+
+        #
+        fig = go.Figure()
+        # Add bar chart data
+        fig.add_trace(go.Bar(
+            x=annual_applications.index,
+            y=annual_applications.values,
+            name="出願件数",
+            marker_color='skyblue',
+        ))
+
+        # Set axis labels and title
+        fig.update_xaxes(title="出願年", titlefont={"size": 16})
+        fig.update_yaxes(title="出願件数", titlefont={"size": 16})
+
+        # Configure grid and ticks
+        fig.update_xaxes(showgrid=True, ticks="outside",
+                         ticktext=df_grouped["出願年"].astype(str))
+        fig.update_yaxes(showgrid=True, ticks="outside",
+                         ticktext=df_grouped["出願件数"].astype(str))
+
+        # Set Japanese font
+        fig.update_layout(font={"family": "YuGothic"})
+
+        # Set x-axis range with a slight buffer
+        fig.update_xaxes(range=[df_grouped["出願年"].min() -
+                                0.5, df_grouped["出願年"].max() + 0.5])
+
+        # Adjust layout
+        fig.update_layout(
+            width=800,
+            height=500,
+            margin=dict(l=20, r=20, t=40, b=40),
+        )
+
+        return render_template('index.html', plot=fig.to_html(include_plotlyjs='cdn'))
+
     else:
-        return 'Please select a CSV file.'
-    # if 'file' not in request.files:
-    #     return jsonify({'error': 'No file uploaded'})
-
-    # file = request.files['file']
-    # if file.filename == '':
-    #     return jsonify({'error': 'No file selected'})
-
-    # if file.type != 'text/csv':
-    #     return jsonify({'error': 'Invalid file type'})
-
-    # Read the CSV file
-    # df = pd.read_csv(file.stream)
-
-    # Process and analyze the CSV data(df variable)
-    # ...
-
-    # Prepare response data
-    # response_data = {
-    #     'message': 'CSV uploaded and analyzed successfully',
-    #     'data': processed_data  # Replace with processed data
-    # }
-
-    # return render_template('index.html')
-    # return render_template('index.html')
+        return '有効なCSVファイルをアップロードしてください。'
 
 
 if __name__ == '__main__':
