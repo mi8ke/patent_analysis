@@ -1,0 +1,8 @@
+plotly
+pandas
+matplotlib
+japanize_matplotlib
+ipykernel
+setuptools
+nbformat 
+flask
