@@ -23,7 +23,7 @@ def upload_csv():
 
         file_path = os.path.join('uploads', file.filename)
         # ファイル保存
-        # file.save(file_path)
+        file.save(file_path)
 
         df = pd.read_csv(file_path)
 
