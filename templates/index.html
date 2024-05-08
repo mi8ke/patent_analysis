@@ -1,10 +1,22 @@
-<!-- templates/index.html -->
-
 <!DOCTYPE html>
 <html>
 
 <head>
-    <title>Image Processing App</title>
+    <title>Patent Analysis App</title>
+    <style>
+        /* ボタンを中央で配置し、上部から20px下に移動 */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* height: 20vh; */
+            margin: 0;
+        }
+
+        form {
+            margin-top: 40px;
+        }
+    </style>
 </head>
 
 <body>
@@ -12,20 +24,6 @@
         <input type="file" name="file">
         <input type="submit" value="Upload">
     </form>
-    {% if plot %}
-    <!-- {{ plot | safe }} -->
-    <div id="graph1">
-        {{ plot | safe }}
-    </div>
-    <h1>patent figure</h1>
-    <div id="graph2">
-        {{ plot2 | safe }}
-    </div>
-    <div id="graph3">
-        {{ plot3 | safe }}
-    </div>
-    {%
-    endif %}
 </body>
 
 </html>

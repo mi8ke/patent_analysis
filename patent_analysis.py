@@ -256,8 +256,3 @@ with open("patent_map.html", "w") as f:
 # 或いは、write_html で直接ファイル書き出し
 fig.write_html("patent_map2.html",
                full_html=True, include_plotlyjs=True)
-
-# %% [markdown]
-#
-
-# %%

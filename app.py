@@ -128,7 +128,7 @@ def upload_csv():
         # fig.update_xaxes(tickwidth=1)
         fig3.update_layout(width=1500, height=600)
 
-        return render_template('index.html', plot=fig.to_html(include_plotlyjs='cdn'),
+        return render_template('index2.html', plot=fig.to_html(include_plotlyjs='cdn'),
                                plot2=fig2.to_html(include_plotlyjs='cdn'),
                                plot3=fig3.to_html(include_plotlyjs='cdn'))
 
